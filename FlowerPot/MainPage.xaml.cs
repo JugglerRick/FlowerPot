@@ -1,30 +1,128 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
+using FlowerPot.Logging;
+using Windows.UI.Popups;
 
 namespace FlowerPot
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainPage : Page
     {
+        private static Logger _log = new Logger("FlowerPotMain");
+
+        public PlayerModel MediaPlayerModel
+        {
+            get { return ((FlowerPot.App)Application.Current).Player ; }
+        }
+
+        /// <summary>
+        /// Initialize the MediaPlayer of the Player control
+        /// </summary>
+        private void InitMediaPlayer()
+        {
+            MediaPlayerModel.Player = _playerElement.MediaPlayer;
+            MediaPlayerModel.ErrorEvent += PlayerModel_ErrorEvent;
+        }
+
+        /// <summary>
+        /// Handler for errors reported by the PlayerModel
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PlayerModel_ErrorEvent(object sender, PlayerModelErrorEventArgs e)
+        {
+            try
+            {
+                var ignored = this.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, async () => {
+                    string errorMessage = ((FlowerPot.App)Application.Current).GetErrorString(e.ErrorName);
+
+                    _log.Information($"The media source has failed : {errorMessage}");
+                    MessageDialog dialog = new MessageDialog(errorMessage);
+                    await dialog.ShowAsync();
+
+                });
+            }
+            catch (Exception ex)
+            {
+                _log.Information($"Error getting error message: {ex.Message}");
+            }
+
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public MainPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
+        }
+
+        /// <summary>
+        /// Handler for the page being loaded
+        /// </summary>
+        /// <param name="sender">the frame that loaded it</param>
+        /// <param name="e">N/A</param>
+        private async void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+
+                _playerElement.IsFullWindow = false;
+                InitMediaPlayer();
+                MediaPlayerModel.Play();
+            }
+            catch(Exception ex)
+            {
+                MessageDialog dialog = new MessageDialog(ex.Message);
+                await dialog.ShowAsync();
+            }
+
+        }
+
+        
+        /// <summary>
+        ///  Page Unload handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Page_Unloaded(object sender, RoutedEventArgs e)
+        {
+            MediaPlayerModel.Player = null;  
+        }
+
+        /// <summary>
+        /// change the media source
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SetUriButton_Click(object sender, RoutedEventArgs e)
+        {
+            MediaPlayerModel.MediaUri = new Uri(_uri.Text);
+            MediaPlayerModel.Play();
+        }
+
+        /// <summary>
+        /// File picker
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void filePick_Click(object sender, RoutedEventArgs e)
+        {
+            var picker = new Windows.Storage.Pickers.FileOpenPicker();
+            picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+            picker.SuggestedStartLocation =  Windows.Storage.Pickers.PickerLocationId.VideosLibrary;
+            picker.FileTypeFilter.Add(".mp4");
+            picker.FileTypeFilter.Add(".mkv");
+            picker.FileTypeFilter.Add(".wmv");
+            picker.FileTypeFilter.Add(".avi");
+
+            Windows.Storage.StorageFile file = await picker.PickSingleFileAsync();
+            if (file != null)
+            {
+                // Application now has read/write access to the picked file
+                _uri.Text = file.Path;
+            }
+ 
         }
     }
 }

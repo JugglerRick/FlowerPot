@@ -5,9 +5,29 @@
     xmlns:local="using:FlowerPot"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
-
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-    </Grid>
+    xmlns:mediacore="using:Windows.Media.Core"
+    mc:Ignorable="d"
+    Loaded="Page_Loaded"
+    Unloaded="Page_Unloaded" 
+    Width="720" Height="525" 
+    Padding="0" 
+    >
+    <!--Source="{x:Bind mediacore:MediaSource.CreateFromUri(rootPage.CaptionedMediaUri)}"-->
+    <Page.Resources>
+        <local:UriConverter x:Key="TwoWayUriConverter"/>
+    </Page.Resources>
+    <StackPanel x:Name="_mainPanel" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Orientation="Vertical">
+        <MediaPlayerElement x:Name="_playerElement"
+                            AutoPlay="False" 
+                            Margin="0"
+                            Stretch="UniformToFill"
+                            Width="640" Height="480"
+                            AreTransportControlsEnabled="False"/>
+        <RelativePanel Margin="0" >
+            <TextBlock x:Name="_uriLabel" Text="Video Uri:" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,8,0" Height="20" Width="65" RelativePanel.AlignLeftWithPanel="True" Padding="0" RelativePanel.AlignVerticalCenterWithPanel="True"  />
+            <TextBox x:Name="_uri" Text="{x:Bind Converter={StaticResource TwoWayUriConverter}, Mode=TwoWay, Path=MediaPlayerModel.MediaUri}" RelativePanel.RightOf="_uriLabel" />
+            <Button x:Name="_filePick" Content="..." Click="filePick_Click" RelativePanel.LeftOf="_uriButton" Height="32" Width="30" Grid.Column="1" RelativePanel.AlignVerticalCenterWithPanel="True" Margin="0,0,8,0"/>
+            <Button x:Name="_uriButton" Content="Load" Click="SetUriButton_Click" Grid.Column="2"  Height="32" Width="52" RelativePanel.AlignRightWithPanel="True" RelativePanel.AlignVerticalCenterWithPanel="True" Margin="0,0,8,0"/>
+        </RelativePanel>
+    </StackPanel>
 </Page>

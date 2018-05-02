@@ -1,19 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
+﻿//  ---------------------------------------------------------------------------------
+//  Copyright (c)  Rick Purtee.  All rights reserved.
+// 
+//  The MIT License (MIT)
+// 
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+// 
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+// 
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//  ---------------------------------------------------------------------------------
+
+using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using FlowerPot.Logging;
+using FlowerPot.Connection;
 
 namespace FlowerPot
 {
@@ -22,6 +38,106 @@ namespace FlowerPot
     /// </summary>
     sealed partial class App : Application
     {
+
+        Logger _log = new Logger("LoopyVideo.App");
+
+
+        private PlayerModel _playerModel = new PlayerModel();
+
+        public PlayerModel Player
+        {
+            get { return _playerModel; }
+            set { _playerModel = value; }
+        }
+
+        /// <summary>
+        /// The connection to the LoopyVideo.Webservice
+        /// </summary>
+        private FlowerConnection _serviceConnection;
+        public FlowerConnection ServiceConnection
+        {
+            get { return _serviceConnection; }
+            set
+            {
+                if (_serviceConnection != null)
+                {
+                    _log.Information("Disposing of old connection");
+                    _serviceConnection.MessageReceived -= MessageReceiver;
+                    _serviceConnection.Dispose();
+                }
+                _serviceConnection = value;
+                if (_serviceConnection != null)
+                {
+                    _log.Information("new connection set");
+                    _serviceConnection.MessageReceived += MessageReceiver;
+                }
+            }
+        }
+
+        private AppMessage MessageReceiver(AppMessage message)
+        {
+            _log.Information($"AppMessage received: {message.ToString()}");
+            AppMessage retMessage = new AppMessage(AppMessage.CommandType.Error, $"Unsupported command type {message.Command.ToString()}");
+            switch (message.Command)
+            {
+                case AppMessage.CommandType.Play:
+                    if(Player.IsValid)
+                    {
+                        Player.Play();
+                        retMessage.Copy(message);
+                    }
+                    else
+                    {
+                        retMessage.Param = "";
+                    }
+                    break;
+                case AppMessage.CommandType.Stop:
+                    if (Player.IsValid)
+                    {
+                        Player.Pause();
+                        retMessage.Copy(message);
+                    }
+                    else
+                    {
+                        retMessage.Param = "";
+                    }
+                    break;
+                case AppMessage.CommandType.Media:
+                    retMessage.Command = AppMessage.CommandType.Media;
+                    retMessage.Param = Player.MediaUri.ToString();
+                    break;
+                case AppMessage.CommandType.State:
+
+                    switch (Player.State)
+                    {
+                        case Windows.Media.Playback.MediaPlaybackState.Opening:
+                            retMessage.Command = AppMessage.CommandType.Unknown;
+                            retMessage.Param = "Video is currently opening";
+                            break;
+                        case Windows.Media.Playback.MediaPlaybackState.Buffering:
+                            retMessage.Command = AppMessage.CommandType.Unknown;
+                            retMessage.Param = "Video is buffering";
+                            break;
+                        case Windows.Media.Playback.MediaPlaybackState.Playing:
+                            retMessage.Command = AppMessage.CommandType.Play;
+                            break;
+                        case Windows.Media.Playback.MediaPlaybackState.Paused:
+                            retMessage.Command = AppMessage.CommandType.Stop;
+                            break;
+                        default:
+                            retMessage.Command = AppMessage.CommandType.Unknown;
+                            break;
+                    }
+
+                    break;
+                default:
+                    break;
+
+            }
+            return retMessage;
+        }
+
+
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -32,6 +148,13 @@ namespace FlowerPot
             this.Suspending += OnSuspending;
         }
 
+        public string GetErrorString(string errorName)
+        {
+            var loader = new Windows.ApplicationModel.Resources.ResourceLoader();
+            return loader.GetString(errorName);
+
+        }
+
         /// <summary>
         /// Invoked when the application is launched normally by the end user.  Other entry points
         /// will be used such as when the application is launched to open a specific file.
@@ -39,6 +162,13 @@ namespace FlowerPot
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
+            //#if DEBUG
+            //            if (System.Diagnostics.Debugger.IsAttached)
+            //            {
+            //                this.DebugSettings.EnableFrameRateCounter = true;
+            //            }
+            //#endif
+
             Frame rootFrame = Window.Current.Content as Frame;
 
             // Do not repeat app initialization when the Window already has content,
@@ -70,6 +200,17 @@ namespace FlowerPot
                 }
                 // Ensure the current window is active
                 Window.Current.Activate();
+
+                if (ServiceConnection == null)
+                {
+                    ServiceConnection = new FlowerConnection("WebAppServiceClient.ServiceConnection");
+                }
+                // has no messages are sent to service from this application and connection
+                // status can be determined from the connection object if needed.
+                // is is not necessory to wait for the connection process to complete here
+                #pragma warning disable 4014
+                ServiceConnection.OpenConnectionAsync();
+                #pragma warning restore 4014
             }
         }
 
