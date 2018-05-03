@@ -10,8 +10,8 @@ namespace FlowerPot.Connection
     {
          private Logger _log;
 
-        private readonly static string _serviceNameDefault = "net.manipulatormanor.LoopyWebServer";
-        private readonly static string _serviceFamilyNameDefault = "LoopyVideo.WebService-uwp_n1q2psqd6svm2";
+        private readonly static string _serviceNameDefault = "net.manipulatormanor.FlowerPotServer";
+        private readonly static string _serviceFamilyNameDefault = "FlowerPot.Server-XXX";
         /// <summary>
         /// Message Received event handler
         /// </summary>
