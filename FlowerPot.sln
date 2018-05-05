@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowerPot.Connection", "Flo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowerPot.Logging", "FlowerPot.Logging\FlowerPot.Logging.csproj", "{58BD8A17-C47C-4248-9140-FF0398890E56}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowerPot.Server", "FlowerPot.Server\FlowerPot.Server.csproj", "{B95AC849-E736-4917-877A-AEBE9266B578}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +75,26 @@ Global
 		{58BD8A17-C47C-4248-9140-FF0398890E56}.Release|x64.Build.0 = Release|x64
 		{58BD8A17-C47C-4248-9140-FF0398890E56}.Release|x86.ActiveCfg = Release|x86
 		{58BD8A17-C47C-4248-9140-FF0398890E56}.Release|x86.Build.0 = Release|x86
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Debug|ARM.ActiveCfg = Debug|ARM
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Debug|ARM.Build.0 = Debug|ARM
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Debug|ARM.Deploy.0 = Debug|ARM
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Debug|x64.ActiveCfg = Debug|x64
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Debug|x64.Build.0 = Debug|x64
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Debug|x64.Deploy.0 = Debug|x64
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Debug|x86.ActiveCfg = Debug|x86
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Debug|x86.Build.0 = Debug|x86
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Debug|x86.Deploy.0 = Debug|x86
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Release|Any CPU.ActiveCfg = Release|x86
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Release|ARM.ActiveCfg = Release|ARM
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Release|ARM.Build.0 = Release|ARM
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Release|ARM.Deploy.0 = Release|ARM
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Release|x64.ActiveCfg = Release|x64
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Release|x64.Build.0 = Release|x64
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Release|x64.Deploy.0 = Release|x64
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Release|x86.ActiveCfg = Release|x86
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Release|x86.Build.0 = Release|x86
+		{B95AC849-E736-4917-877A-AEBE9266B578}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

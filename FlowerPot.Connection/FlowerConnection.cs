@@ -10,8 +10,8 @@ namespace FlowerPot.Connection
     {
          private Logger _log;
 
-        private readonly static string _serviceNameDefault = "net.manipulatormanor.LoopyWebServer";
-        private readonly static string _serviceFamilyNameDefault = "LoopyVideo.WebService-uwp_n1q2psqd6svm2";
+        private readonly static string _serviceNameDefault = "net.manipulatormanor.FlowerPotServer";
+        private readonly static string _serviceFamilyNameDefault = "FlowerPot.Server-appservice_gj2640ds771dp";
         /// <summary>
         /// Message Received event handler
         /// </summary>
@@ -128,7 +128,7 @@ namespace FlowerPot.Connection
         /// <summary>
         /// Default constructor
         /// </summary>
-        public FlowerConnection() : this("AppConnection")
+        public FlowerConnection() : this("FlowerConnection")
         {
         }
         /// <summary>
